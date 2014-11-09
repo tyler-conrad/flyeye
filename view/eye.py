@@ -1,10 +1,7 @@
 from math import sqrt
-from flyeye.model.node import BORDER_SIZE
 
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
-
-
 
 from input import tree
 

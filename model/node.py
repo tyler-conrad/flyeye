@@ -1,18 +1,31 @@
+from kivy.core.text import Label
 from kivy.graphics import Rectangle
 from kivy.graphics import Color
 
+
 BORDER_SIZE = 0.25
 
+def build_label(text):
+        label = Label(font_size=12)
+        label.text = text
+        label.refresh()
+        return (
+            label,
+            (float(label._size[0]),
+            float(label._size[1])))
+
 class Style(object):
-    def __init__(self):
+    def __init__(self, text):
         self.outer_color = Color(0.0, 0.0, 0.0, 1.0)
-        self.inner_color = Color(0.0, 0.0, 0.0, 1.0)
+        self.inner_color = Color(0.2, 0.2, 0.2, 1.0)
+        self.text_color = Color(0.0, 0.0, 0.0, 1.0)
         self.outer_rect = Rectangle()
         self.inner_rect = Rectangle()
+        label, size = build_label(text)
+        self.label_size = size
+        self.text_rect = Rectangle(texture=label.texture)
 
     def init(self, x, y, w, h, depth):
-        # self.depth_color = (depth, depth, depth)
-        # self.inner_color.rgb = self.depth_color
         self.inner_color.rgb = (depth, depth, depth)
         self.update(x, y, w, h)
 
@@ -21,6 +34,21 @@ class Style(object):
         self.outer_rect.size = (w, h)
         self.inner_rect.pos = (x + BORDER_SIZE, y + BORDER_SIZE)
         self.inner_rect.size = (w - (BORDER_SIZE * 2.0), h - (BORDER_SIZE * 2.0))
+
+        label_width, label_height = self.label_size
+        if self.label_size[0] < w:
+            self.text_rect.size = self.label_size
+            width = label_width
+            height = label_height
+        else:
+            scale_factor = w / label_width
+            width = scale_factor * label_width
+            height = scale_factor * label_height
+            self.text_rect.size = (width, height)
+        self.text_rect.pos = (
+            x - ((width - w) / 2.0),
+            y - ((height - h) / 2.0))
+
 
 class NodeStyle(Style):
     pass
@@ -49,12 +77,16 @@ class Node(object):
         canvas.add(self.style.outer_rect)
         canvas.add(self.style.inner_color)
         canvas.add(self.style.inner_rect)
+        canvas.add(self.style.text_color)
+        canvas.add(self.style.text_rect)
 
     def is_leaf(self):
         return bool(self.children)
 
     def build_style(self):
-        self.style = LeafStyle() if self.is_leaf() else NodeStyle()
+        self.style = LeafStyle(self.name)\
+            if self.is_leaf()\
+            else NodeStyle(self.name)
 
     def collide_point(self, x, y):
         rx, ry = self.style.outer_rect.pos
