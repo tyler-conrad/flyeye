@@ -15,8 +15,8 @@ def chunk(group, chunk_size):
     return chunk_list
 
 def build_traversal(tree_depth):
-    def traverse(node, x, y, w, h, depth=0.0):
-        node.style.update(x, y, w, h, depth / tree_depth)
+    def traverse(node, x, y, w, h, depth=0.0, update_func='update'):
+        getattr(node.style, update_func)(x, y, w, h, depth / tree_depth)
 
         if not len(node.children):
             return
@@ -39,7 +39,8 @@ def build_traversal(tree_depth):
                     y + iy * height,
                     width,
                     height,
-                    depth + 1.0)
+                    depth + 1.0,
+                    update_func)
     return traverse
 
 def build_walker(node, func):
@@ -76,7 +77,7 @@ class Eye(Widget):
         self.traversal = build_traversal(tree_depth)
         add_styles(self.tree)
         self.add_instructions(self.tree)
-        self.draw(None, None)
+        self.do_draw('init')
         self.anim_active = False
         self.bind(
             size=self.draw,
@@ -88,18 +89,23 @@ class Eye(Widget):
         for subnode in node.children.values():
             self.add_instructions(subnode)
 
-    def draw(self, inst, val):
+    def do_draw(self, update_func='update'):
+        self.draw(None, None, update_func)
+
+    def draw(self, inst, val, update_func='update'):
         self.traversal(
             self.cursor,
             float(self.x),
             float(self.y),
             float(self.width),
-            float(self.height))
+            float(self.height),
+            update_func=update_func)
 
     def on_mouse_pos(self, window, mouse_pos):
-        def check(node):
-            return node.check_highlight(*mouse_pos)
-        build_walker(self.cursor, check)(self.cursor)
+        pass
+        # def check(node):
+        #     return node.check_highlight(*mouse_pos)
+        # build_walker(self.cursor, check)(self.cursor)
 
     def collapse_singles(self, pos):
         selected_child = child_selection(pos, self.cursor)
@@ -113,7 +119,7 @@ class Eye(Widget):
     def redraw_at_cursor(self):
         self.canvas.clear()
         self.add_instructions(self.cursor)
-        self.draw(None, None)
+        self.do_draw()
 
     def on_touch_down(self, touch):
         if not all(['button' in touch.profile, 'pos' in touch.profile]):

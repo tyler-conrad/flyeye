@@ -10,9 +10,13 @@ class Style(object):
         self.outer_rect = Rectangle()
         self.inner_rect = Rectangle()
 
-    def update(self, x, y, w, h, depth):
-        self.depth_color = (depth,) * 3 + (1.0,)
-        self.inner_color.rgb = self.depth_color
+    def init(self, x, y, w, h, depth):
+        # self.depth_color = (depth, depth, depth)
+        # self.inner_color.rgb = self.depth_color
+        self.inner_color.rgb = (depth, depth, depth)
+        self.update(x, y, w, h)
+
+    def update(self, x, y, w, h, depth=None):
         self.outer_rect.pos = (x, y)
         self.outer_rect.size = (w, h)
         self.inner_rect.pos = (x + BORDER_SIZE, y + BORDER_SIZE)
