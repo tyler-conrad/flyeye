@@ -1,3 +1,3 @@
 <p align="center">
-  <img src="https://github.com/tyler-conrad/flyeye/blob/master/flyeye.png?raw=true"/>
+  <img src="https://github.com/tyler-conrad/flyeye/raw/master/treemap.png"/>
 </p>
