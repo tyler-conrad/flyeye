@@ -12,14 +12,14 @@ def chunk(group, chunk_size):
     return chunk_list
 
 def build_traversal(tree_depth):
-    def traverse(node, x, y, w, h, depth=0.0, update_func='update'):
+    def traverse(node, x, y, w, h, depth=3.0, update_func='update'):
         getattr(node.style, update_func)(x, y, w, h, depth / tree_depth)
 
         if not len(node.children):
             return
 
         num_row = int(round(sqrt(len(node.children))))
-        row_list = chunk(node.children.values(), num_row)
+        row_list = chunk(list(node.children.values()), num_row)
         if len(row_list) > num_row:
             last = row_list.pop()
             row_list[-1].extend(last)
@@ -120,7 +120,7 @@ class Eye(Widget):
 
     def on_touch_down(self, touch):
         if not all(['button' in touch.profile, 'pos' in touch.profile]):
-            print 'unsupported input type'
+            print('unsupported input type')
             return
 
         if not self.collide_point(*touch.pos):
